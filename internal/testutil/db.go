@@ -2,11 +2,13 @@ package testutil
 
 import (
 	"context"
+	"database/sql"
 	"fmt"
 	"path/filepath"
 	"time"
 
 	"github.com/jackc/pgx/v5/pgxpool"
+	_ "github.com/jackc/pgx/v5/stdlib"
 	"github.com/pressly/goose/v3"
 	"github.com/testcontainers/testcontainers-go"
 	"github.com/testcontainers/testcontainers-go/wait"
@@ -38,7 +40,6 @@ func NewTestDB(ctx context.Context) (*TestDB, error) {
 	p, _ := ct.MappedPort(ctx, "5432")
 	dsn := fmt.Sprintf("postgres://api:pw@%s:%s/hospital?sslmode=disable", host, p.Port())
 
-	// pgxpool
 	cfg, _ := pgxpool.ParseConfig(dsn)
 	cfg.MaxConnLifetime = time.Minute
 	pool, err := pgxpool.NewWithConfig(ctx, cfg)
@@ -47,8 +48,16 @@ func NewTestDB(ctx context.Context) (*TestDB, error) {
 		return nil, err
 	}
 
+	sqlDB, err := sql.Open("pgx", dsn)
+	if err != nil {
+		pool.Close()
+		_ = ct.Terminate(ctx)
+		return nil, err
+	}
+	defer sqlDB.Close()
+
 	migDir, _ := filepath.Abs("../../migrations")
-	if err := goose.UpContext(ctx, pool, migDir); err != nil {
+	if err := goose.UpContext(ctx, sqlDB, migDir); err != nil {
 		pool.Close()
 		_ = ct.Terminate(ctx)
 		return nil, err
