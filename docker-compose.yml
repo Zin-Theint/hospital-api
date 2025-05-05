@@ -1,0 +1,29 @@
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: api
+      POSTGRES_PASSWORD: api_pw
+      POSTGRES_DB: hospital
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    ports: ["5432:5432"]
+
+  api:
+    build: .
+    depends_on: [db]
+    environment:
+      - DB_DSN=postgres://api:api_pw@db:5432/hospital?sslmode=disable
+      - PORT=8080
+    ports: ["8080:8080"]
+    command: ["./hospital-api"]
+
+  nginx:
+    image: nginx:1.25-alpine
+    depends_on: [api]
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+    ports: ["80:80"]
+
+volumes:
+  db_data:
