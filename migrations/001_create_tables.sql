@@ -7,7 +7,6 @@ CREATE TABLE hospitals (
 
 INSERT INTO hospitals (name) VALUES
     ('Hospital A'),
-    ('Hospital B');  -- add more if needed
 
 CREATE TABLE staff (
     id           SERIAL PRIMARY KEY,

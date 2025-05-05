@@ -21,7 +21,7 @@ func main() {
 	if err != nil {
 		log.Fatalf("db connect: %v", err)
 	}
-	defer db.Close(context.Background())
+	defer db.Close()
 
 	r := router.Setup(db, cfg.JWTSecret)
 
