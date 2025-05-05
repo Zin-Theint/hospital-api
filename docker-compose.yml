@@ -9,14 +9,27 @@ services:
       - db_data:/var/lib/postgresql/data
     ports: ["5432:5432"]
 
+  migrations:
+    image: migrate/migrate:v4.17.1
+    depends_on: [db]
+    volumes:
+      - ./migrations:/migrations
+    command:
+      [
+        "-path=/migrations",
+        "-database",
+        "postgres://api:api_pw@db:5432/hospital?sslmode=disable",
+        "up",
+      ]
+
   api:
     build: .
-    depends_on: [db]
+    depends_on: [migrations]
     environment:
       - DB_DSN=postgres://api:api_pw@db:5432/hospital?sslmode=disable
       - PORT=8080
+      - JWT_SECRET=dev-secret-change-me
     ports: ["8080:8080"]
-    command: ["./hospital-api"]
 
   nginx:
     image: nginx:1.25-alpine
