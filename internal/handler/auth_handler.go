@@ -7,7 +7,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v5"
 
-	"github.com/your-github-name/hospital-api/internal/service"
+	"github.com/Zin-Theint/hospital-api/internal/service"
 )
 
 type AuthHandler struct {

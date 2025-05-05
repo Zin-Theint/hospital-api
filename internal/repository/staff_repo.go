@@ -3,8 +3,8 @@ package repository
 import (
 	"context"
 
+	"github.com/Zin-Theint/hospital-api/internal/model"
 	"github.com/jackc/pgx/v5/pgxpool"
-	"github.com/your-github-name/hospital-api/internal/model"
 )
 
 type StaffRepo struct {
